@@ -1,0 +1,94 @@
+:root {
+    --insert-y-0: -80px;
+    --insert-y-1: -180px;
+    --insert-y-2: -250px;
+    --insert-y-3: -330px;
+    --insert-y-4: -400px;
+    --insert-y-5: -500px;
+}
+
+table {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: blue;
+}
+
+@keyframes gravity0 {
+    0% {
+        transform: translate(0, var(--insert-y-0));
+    }
+    100% {
+        transform: translate(0, 30px);
+    }
+}
+
+@keyframes gravity1 {
+    0% {
+        transform: translate(0, var(--insert-y-1));
+    }
+    100% {
+        transform: translate(0, 30px);
+    }
+}
+
+@keyframes gravity2 {
+    0% {
+        transform: translate(0, var(--insert-y-2));
+    }
+    100% {
+        transform: translate(0, 30px);
+    }
+}
+
+@keyframes gravity3 {
+    0% {
+        transform: translate(0, var(--insert-y-3));
+    }
+    100% {
+        transform: translate(0, 30px);
+    }
+}
+
+@keyframes gravity4 {
+    0% {
+        transform: translate(0, var(--insert-y-4));
+    }
+    100% {
+        transform: translate(0, 30px);
+    }
+}
+
+@keyframes gravity5 {
+    0% {
+        transform: translate(0, var(--insert-y-5));
+    }
+    100% {
+        transform: translate(0, 30px);
+    }
+}
+
+.falling0 {
+    animation: gravity0 0.2s cubic-bezier(0.33333, 0, 0.66667, 0.33333);
+}
+
+.falling1 {
+    animation: gravity1 0.3s cubic-bezier(0.33333, 0, 0.66667, 0.33333);
+}
+
+.falling2 {
+    animation: gravity2 0.4s cubic-bezier(0.33333, 0, 0.66667, 0.33333);
+}
+
+.falling3 {
+    animation: gravity3 0.55s cubic-bezier(0.33333, 0, 0.66667, 0.33333);
+}
+
+.falling4 {
+    animation: gravity4 0.6s cubic-bezier(0.33333, 0, 0.66667, 0.33333);
+}
+
+.falling5 {
+    animation: gravity5 0.6s cubic-bezier(0.33333, 0, 0.66667, 0.33333);
+}
