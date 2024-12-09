@@ -10,6 +10,7 @@ var PLAYER2_HOVER = 'OO'
 var gBoard = []
 var gCurrPlayer = PLAYER1
 var gTurn = 0
+var gVsAi = true
 
 var gElements = {
     [EMPTY]: '<svg height="80" width="80">\n' +
@@ -87,23 +88,37 @@ function addAttribute(elementTxt, htmlClass, value) {
     return elementTxt
 }
 
-function onTdClick(col) {
+function playTurn(col) {
     var row = findEmptyDepth(col)
     var playerEl = gElements[gCurrPlayer]
 
     if (row === -1) return // column full
     gBoard[row][col] = gCurrPlayer
-    onTdLeave(col)
     playerEl = addAttribute(playerEl, 'class', 'falling' + (row-1))
     renderCell({ i: row, j: col }, playerEl)
-
+    
     if (isWin()) {
         setTimeout(() => alert('player won!'), 100)
     }
+    // Update current player
+    if (!gVsAi) onTdLeave(col)
     gCurrPlayer = gCurrPlayer == PLAYER1 ? PLAYER2 : PLAYER1
-    onTdHover(col)
+    if (!gVsAi) onTdHover(col)
     gTurn++
     if (gTurn == (ROWS - 1) * COLS) alert('board full')
+}
+
+function onTdClick(col) {
+    playTurn(col)
+    
+    if (gVsAi) {
+        playAiTurn()
+    }
+}
+
+async function playAiTurn() {
+    await new Promise(r => setTimeout(r, 1000))
+    playTurn(2)
 }
 
 function findEmptyDepth(col) {
