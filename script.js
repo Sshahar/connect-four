@@ -9,7 +9,7 @@ var PLAYER2_HOVER = 'OO'
 // Game state  
 var gBoard = []
 var gCurrPlayer = PLAYER1
-var gTurn = 0
+var gTurn = 1
 var gVsAi = true
 
 var gElements = {
@@ -89,14 +89,14 @@ function addAttribute(elementTxt, htmlClass, value) {
 }
 
 function playTurn(col) {
-    var row = findEmptyDepth(col)
+    var row = getLowestRowAt(col)
     var playerEl = gElements[gCurrPlayer]
 
     if (row === -1) return // column full
     gBoard[row][col] = gCurrPlayer
-    playerEl = addAttribute(playerEl, 'class', 'falling' + (row-1))
+    playerEl = addAttribute(playerEl, 'class', 'falling' + (row - 1))
     renderCell({ i: row, j: col }, playerEl)
-    
+
     if (isWin()) {
         setTimeout(() => alert('player won!'), 100)
     }
@@ -110,18 +110,66 @@ function playTurn(col) {
 
 function onTdClick(col) {
     playTurn(col)
-    
+
     if (gVsAi) {
         playAiTurn()
     }
 }
 
 async function playAiTurn() {
-    await new Promise(r => setTimeout(r, 1000))
-    playTurn(2)
+    // offensive AI
+    // first tile - random location
+    // next tiles - near a tile it already has
+
+    if (gTurn === 2) {
+        col = getRandomInt(0, COLS)
+        playTurn(col)
+        return
+    }
+    var ourTiles = getTilesWith(PLAYER2, gBoard)
+    var optionalTiles = []
+    for (var i = 0; i < ourTiles.length; i++) {
+        var currTile = ourTiles[i]
+        optionalTiles = optionalTiles.concat(getNeiborTiles(currTile))
+    }
+
+    // Get random tile 
+    debugger
+    var tileIdx = getRandomInt(0, optionalTiles.length)
+    var col = optionalTiles[tileIdx].j
+    playTurn(col)
 }
 
-function findEmptyDepth(col) {
+async function sleep() {
+    await new Promise(r => setTimeout(r, 1000))
+}
+
+function getNeiborTiles(coord) {
+    var tiles = []
+    for (var i = coord.i - 1; i < ROWS && i <= coord.i + 1; i++) {
+        for (var j = coord.j - 1; j < COLS && j <= coord.j + 1; j++) {
+            if (i < 0 || j < 0) continue
+            if (i == coord.i && j == coord.j) continue
+            tiles.push({ i, j })
+        }
+    }
+
+    return tiles
+}
+
+function getTilesWith(value, board) {
+    var tiles = []
+
+    for (var i = 0; i < ROWS; i++) {
+        for (var j = 0; j < COLS; j++) {
+            if (board[i][j] == value) tiles.push({ i, j })
+        }
+    }
+
+    return tiles
+}
+
+function getLowestRowAt(col) {
     for (var row = ROWS - 1; row >= 0; row--) {
         if (gBoard[row][col] === EMPTY) return row
     }
@@ -185,4 +233,8 @@ function isWin() {
         }
     }
     return false
+}
+
+function getRandomInt(min, max) {
+    return min + Math.floor(Math.random() * (max - min))
 }
