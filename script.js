@@ -10,7 +10,7 @@ var PLAYER2_HOVER = 'OO'
 var gBoard = []
 var gCurrPlayer = PLAYER1
 var gTurn = 1
-var gVsAi = true
+var gVsAI = true
 
 var gElements = {
     [EMPTY]: '<svg height="80" width="80">\n' +
@@ -101,9 +101,9 @@ function playTurn(col) {
         setTimeout(() => alert('player won!'), 100)
     }
     // Update current player
-    if (!gVsAi) onTdLeave(col)
+    if (!gVsAI) onTdLeave(col)
     gCurrPlayer = gCurrPlayer == PLAYER1 ? PLAYER2 : PLAYER1
-    if (!gVsAi) onTdHover(col)
+    if (!gVsAI) onTdHover(col)
     gTurn++
     if (gTurn == (ROWS - 1) * COLS) alert('board full')
 }
@@ -111,30 +111,68 @@ function playTurn(col) {
 function onTdClick(col) {
     playTurn(col)
 
-    if (gVsAi) {
-        playAiTurn()
+    if (gVsAI) {
+        playAITurn()
     }
 }
 
-async function playAiTurn() {
+function getOffensiveMovesAI() {
     // offensive AI
     // first tile - random location
     // next tiles - near a tile it already has
-
     if (gTurn === 2) {
         col = getRandomInt(0, COLS)
         playTurn(col)
         return
     }
+
     var ourTiles = getTilesWith(PLAYER2, gBoard)
     var optionalTiles = []
+
     for (var i = 0; i < ourTiles.length; i++) {
         var currTile = ourTiles[i]
         optionalTiles = optionalTiles.concat(getNeiborTiles(currTile))
     }
+    
+    return optionalTiles
+}
+
+function getDefensiveMovesAI() {
+    // Defensive AI
+    // find enemy tiles
+    // place next to those tiles
+
+    var enemyTiles = getTilesWith(PLAYER1, gBoard)
+    var optionalTiles = []
+
+    for (var i = 0; i < enemyTiles.length; i++) {
+        var currTile = enemyTiles[i]
+        optionalTiles = optionalTiles.concat(getNeiborTiles(currTile))
+    }
+    // Only get possible tiles
+    optionalTiles = optionalTiles.filter(t => t.i === getLowestRowAt(t.j))
+    
+    optionalTiles = optionalTiles.filter(t => {
+        var keep = false
+
+        // keep tiles near enemy
+        enemyTiles.forEach(et => {
+            if (distance(t, et) === 1) keep = true
+        })
+        return keep
+    })
+
+    return optionalTiles
+}
+
+function distance(coord1, coord2) {
+    return Math.abs(coord1.i - coord2.i) + Math.abs(coord1.j - coord2.j)
+}
+
+async function playAITurn() {
+    optionalTiles = getDefensiveMovesAI()
 
     // Get random tile 
-    debugger
     var tileIdx = getRandomInt(0, optionalTiles.length)
     var col = optionalTiles[tileIdx].j
     playTurn(col)
