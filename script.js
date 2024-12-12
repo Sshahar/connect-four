@@ -17,6 +17,7 @@ var gCurrPlayer
 var gTurn
 var gVsAI
 var gGameOver
+var gBlock
 
 // String HTML
 var gStrHTML = {
@@ -40,16 +41,16 @@ var gStrHTML = {
         '</svg>',
 }
 
-function onInit() {  
+function onInit() {
     gCurrPlayer = PLAYER1
     gTurn = 1
     gVsAI = true
     gGameOver = false
+    gBoard = createBoard(EMPTY)
+    setRow(0, INSERT, gBoard)
 
     document.querySelector('.win-modal').style.display = 'none'
     document.querySelector('.game-board').style.display = 'block'
-    gBoard = createBoard(EMPTY)
-    setRow(0, INSERT, gBoard)
     renderBoard()
 }
 
@@ -94,19 +95,29 @@ function addAttribute(elementTxt, htmlClass, value) {
     return elementTxt
 }
 
-function playTurn(col) {
-    var row = getLowestRowAt(col, gBoard, EMPTY)
+function placeDisc(col, board) {
+
+}
+
+function playTurn(col, board) {
+    // one of three options:
+    // AI simulates game
+    // Player's turn
+    // AI's turn
+
+    var row = getLowestRowAt(col, board, EMPTY)
     var playerEl = gStrHTML[gCurrPlayer]
 
     if (!row) return // column full
-    gBoard[row][col] = gCurrPlayer
+    board[row][col] = gCurrPlayer
     playerEl = addAttribute(playerEl, 'class', 'falling' + (row - 1))
     renderCell({ i: row, j: col }, playerEl)
 
-    if (isWin()) {
+    if (isWin(board)) {
         onWin()
         return
     }
+
     // Update current player
     if (!gVsAI) onCellLeave(col)
     gCurrPlayer = gCurrPlayer == PLAYER1 ? PLAYER2 : PLAYER1
@@ -126,7 +137,9 @@ function onWin() {
 
 function onCellClick(col) {
     if (gGameOver) return
-    playTurn(col)
+    if (gBlock) return
+
+    playTurn(col, gBoard)
 
     if (gVsAI && !gGameOver) {
         playAITurn()
@@ -139,7 +152,7 @@ function getOffensiveMovesAI() {
     // next tiles - near a tile it already has
     if (gTurn === 2) {
         col = getRandomInt(0, COLS)
-        playTurn(col)
+        playTurn(col, gBoard)
         return
     }
 
@@ -183,6 +196,9 @@ function getDefensiveMovesAI() {
 }
 
 async function playAITurn() {
+    // Block player from playing
+    gBlock = true
+
     // Simulate AI thinking
     await sleep()
 
@@ -201,13 +217,18 @@ async function playAITurn() {
     var col = bestMoves[moveIdx].j
 
     // Play turn
-    playTurn(col)
+    playTurn(col, gBoard)
 
     // Unblock player
-
+    gBlock = false
 }
 
+
 function gradeMove(move) {
+    // var tempBoard = _.cloneDeep(gBoard)
+    // if (isWin(boardAfterMove)) return { ...move, grade: Infinity }
+    // var boardAfterMove = playTurn(move.j, tempBoard)
+
     return { ...move, grade: 1 }
 }
 
@@ -215,16 +236,16 @@ function bestMove(move) {
 
 }
 
-function isWin() {
+function isWin(board) {
     for (var i = 0; i < ROWS; i++) {
         for (var j = 0; j < COLS; j++) {
-            var currVal = gBoard[i][j]
+            var currVal = board[i][j]
             if (currVal === EMPTY || currVal === INSERT) continue
             var coord = { i, j }
-            if (1 + getConsRight(coord, COLS, gBoard, currVal).length >= 4) return true
-            if (1 + getConsBelow(coord, ROWS, gBoard, currVal).length >= 4) return true
-            if (countConsecutiveRightDown(coord, gBoard) >= 4) return true
-            if (countConsecutiveLeftUp(coord, gBoard) >= 4) return true
+            if (1 + getConsRight(coord, COLS, board, currVal).length >= 4) return true
+            if (1 + getConsBelow(coord, ROWS, board, currVal).length >= 4) return true
+            if (countConsecutiveRightDown(coord, board) >= 4) return true
+            if (countConsecutiveLeftUp(coord, board) >= 4) return true
         }
     }
     return false
