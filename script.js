@@ -1,18 +1,23 @@
+// Board parameters
+var gBoard = []
 var ROWS = 7
 var COLS = 7
+
+// Tiles
 var EMPTY = 'V'
 var PLAYER1 = 'X'
 var PLAYER2 = 'O'
 var INSERT = 'B'
 var PLAYER1_HOVER = 'XX'
 var PLAYER2_HOVER = 'OO'
+
 // Game state  
-var gBoard = []
 var gCurrPlayer = PLAYER1
 var gTurn = 1
 var gVsAI = true
 
-var gElements = {
+// String HTML
+var gStrHTML = {
     [EMPTY]: '<svg height="80" width="80">\n' +
         '   <circle r="30" cx="40" cy="40" fill="#bebcbf"/>\n' +
         '</svg>',
@@ -33,22 +38,10 @@ var gElements = {
         '</svg>',
 }
 
-gBoard = createBoard()
-renderBoard()
-
-function createBoard() {
-    var board = []
-
-    for (var i = 0; i < ROWS; i++) {
-        board[i] = []
-        for (var j = 0; j < COLS; j++) {
-            var tile = EMPTY
-            if (i == 0) tile = INSERT
-            board[i][j] = tile
-        }
-    }
-
-    return board
+function onInit() {
+    gBoard = createBoard(EMPTY)
+    setRow(0, INSERT, gBoard)
+    renderBoard()
 }
 
 function renderBoard() {
@@ -56,7 +49,10 @@ function renderBoard() {
     for (var i = 0; i < ROWS; i++) {
         strHTML += '<tr>\n'
         for (var j = 0; j < COLS; j++) {
-            strHTML += `\t<td onmouseenter="onTdHover(${j})" onmouseleave="onTdLeave(${j})" onclick="onTdClick(${j})" data-i=${i} data-j=${j}>${gElements[gBoard[i][j]]}</td>\n`
+            strHTML += `\t<td onmouseenter="onCellHover(${j})"
+             onmouseleave="onCellLeave(${j})"
+              onclick="onCellClick(${j})"
+               data-i=${i} data-j=${j}>${gStrHTML[gBoard[i][j]]}</td>\n`
         }
         strHTML += '</tr>\n'
     }
@@ -64,13 +60,13 @@ function renderBoard() {
     boardEl.innerHTML = strHTML
 }
 
-function onTdHover(col) {
-    var playerEl = gElements[gCurrPlayer == PLAYER1 ? PLAYER1_HOVER : PLAYER2_HOVER]
+function onCellHover(col) {
+    var playerEl = gStrHTML[gCurrPlayer == PLAYER1 ? PLAYER1_HOVER : PLAYER2_HOVER]
     renderCell({ i: 0, j: col }, playerEl)
 }
 
-function onTdLeave(col) {
-    renderCell({ i: 0, j: col }, gElements[INSERT])
+function onCellLeave(col) {
+    renderCell({ i: 0, j: col }, gStrHTML[INSERT])
 }
 
 function renderCell(coord, value) {
@@ -89,8 +85,8 @@ function addAttribute(elementTxt, htmlClass, value) {
 }
 
 function playTurn(col) {
-    var row = getLowestRowAt(col)
-    var playerEl = gElements[gCurrPlayer]
+    var row = getLowestRowAt(col, gBoard)
+    var playerEl = gStrHTML[gCurrPlayer]
 
     if (row === -1) return // column full
     gBoard[row][col] = gCurrPlayer
@@ -101,14 +97,14 @@ function playTurn(col) {
         setTimeout(() => alert('player won!'), 100)
     }
     // Update current player
-    if (!gVsAI) onTdLeave(col)
+    if (!gVsAI) onCellLeave(col)
     gCurrPlayer = gCurrPlayer == PLAYER1 ? PLAYER2 : PLAYER1
-    if (!gVsAI) onTdHover(col)
+    if (!gVsAI) onCellHover(col)
     gTurn++
     if (gTurn == (ROWS - 1) * COLS) alert('board full')
 }
 
-function onTdClick(col) {
+function onCellClick(col) {
     playTurn(col)
 
     if (gVsAI) {
@@ -126,14 +122,14 @@ function getOffensiveMovesAI() {
         return
     }
 
-    var ourTiles = getTilesWith(PLAYER2, gBoard)
+    var ourTiles = getCoordsWith(PLAYER2, gBoard)
     var optionalTiles = []
 
     for (var i = 0; i < ourTiles.length; i++) {
         var currTile = ourTiles[i]
-        optionalTiles = optionalTiles.concat(getNeiborTiles(currTile))
+        optionalTiles = optionalTiles.concat(getNegCoords(currTile))
     }
-    
+
     return optionalTiles
 }
 
@@ -142,16 +138,16 @@ function getDefensiveMovesAI() {
     // find enemy tiles
     // place next to those tiles
 
-    var enemyTiles = getTilesWith(PLAYER1, gBoard)
+    var enemyTiles = getCoordsWith(PLAYER1, gBoard)
     var optionalTiles = []
 
     for (var i = 0; i < enemyTiles.length; i++) {
         var currTile = enemyTiles[i]
-        optionalTiles = optionalTiles.concat(getNeiborTiles(currTile))
+        optionalTiles = optionalTiles.concat(getNegCoords(currTile))
     }
     // Only get possible tiles
-    optionalTiles = optionalTiles.filter(t => t.i === getLowestRowAt(t.j))
-    
+    optionalTiles = optionalTiles.filter(t => t.i === getLowestRowAt(t.j, gBoard))
+
     optionalTiles = optionalTiles.filter(t => {
         var keep = false
 
@@ -170,6 +166,7 @@ function distance(coord1, coord2) {
 }
 
 async function playAITurn() {
+    await sleep()
     optionalTiles = getDefensiveMovesAI()
 
     // Get random tile 
@@ -178,101 +175,21 @@ async function playAITurn() {
     playTurn(col)
 }
 
-async function sleep() {
-    await new Promise(r => setTimeout(r, 1000))
+async function sleep(ms = 1000) {
+    await new Promise(r => setTimeout(r, ms))
 }
-
-function getNeiborTiles(coord) {
-    var tiles = []
-    for (var i = coord.i - 1; i < ROWS && i <= coord.i + 1; i++) {
-        for (var j = coord.j - 1; j < COLS && j <= coord.j + 1; j++) {
-            if (i < 0 || j < 0) continue
-            if (i == coord.i && j == coord.j) continue
-            tiles.push({ i, j })
-        }
-    }
-
-    return tiles
-}
-
-function getTilesWith(value, board) {
-    var tiles = []
-
-    for (var i = 0; i < ROWS; i++) {
-        for (var j = 0; j < COLS; j++) {
-            if (board[i][j] == value) tiles.push({ i, j })
-        }
-    }
-
-    return tiles
-}
-
-function getLowestRowAt(col) {
-    for (var row = ROWS - 1; row >= 0; row--) {
-        if (gBoard[row][col] === EMPTY) return row
-    }
-    return -1
-}
-
-function countConsecutiveRight(coord) {
-    var count = 0
-
-    var i = coord.i
-    for (var j = coord.j; j < COLS; j++) {
-        if (gBoard[i][j] == gBoard[coord.i][coord.j]) count++
-        else break
-    }
-
-    return count
-}
-
-function countConsecutiveDown(coord) {
-    var count = 0
-
-    for (var i = coord.i, j = coord.j; i < ROWS; i++) {
-        if (gBoard[i][j] == gBoard[coord.i][coord.j]) count++
-        else break
-    }
-
-    return count
-}
-
-function countConsecutiveRightDown(coord) {
-    var count = 0
-
-    for (var i = coord.i, j = coord.j; i < ROWS && j < COLS; i++, j++) {
-        if (gBoard[i][j] == gBoard[coord.i][coord.j]) count++
-        else break
-    }
-
-    return count
-}
-
-function countConsecutiveLeftUp(coord) {
-    var count = 0
-
-    for (var i = coord.i, j = coord.j; i >= 0 && j < COLS; i--, j++) {
-        if (gBoard[i][j] == gBoard[coord.i][coord.j]) count++
-        else break
-    }
-
-    return count
-}
-
 
 function isWin() {
     for (var i = 0; i < ROWS; i++) {
         for (var j = 0; j < COLS; j++) {
-            if (gBoard[i][j] === EMPTY || gBoard[i][j] === INSERT) continue
-            if (countConsecutiveRight({ i, j }) >= 4) return true
-            if (countConsecutiveDown({ i, j }) >= 4) return true
-            if (countConsecutiveRightDown({ i, j }) >= 4) return true
-            if (countConsecutiveLeftUp({ i, j }) >= 4) return true
+            var currVal = gBoard[i][j]
+            if (currVal === EMPTY || currVal === INSERT) continue
+            var coord = { i, j }
+            if (1 + getConsRight(coord, COLS, gBoard, currVal).length >= 4) return true
+            if (1 + getConsBelow(coord, ROWS, gBoard, currVal).length >= 4) return true
+            if (countConsecutiveRightDown(coord, gBoard) >= 4) return true
+            if (countConsecutiveLeftUp(coord, gBoard) >= 4) return true
         }
     }
     return false
-}
-
-function getRandomInt(min, max) {
-    return min + Math.floor(Math.random() * (max - min))
 }
