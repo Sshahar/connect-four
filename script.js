@@ -1,3 +1,4 @@
+'use strict'
 // Board parameters
 var gBoard = []
 var ROWS = 7
@@ -85,10 +86,11 @@ function addAttribute(elementTxt, htmlClass, value) {
 }
 
 function playTurn(col) {
-    var row = getLowestRowAt(col, gBoard)
+    var row = getLowestRowAt(col, gBoard, EMPTY)
     var playerEl = gStrHTML[gCurrPlayer]
 
-    if (row === -1) return // column full
+    if (!row) return // column full
+    debugger
     gBoard[row][col] = gCurrPlayer
     playerEl = addAttribute(playerEl, 'class', 'falling' + (row - 1))
     renderCell({ i: row, j: col }, playerEl)
@@ -105,6 +107,7 @@ function playTurn(col) {
 }
 
 function onCellClick(col) {
+    debugger
     playTurn(col)
 
     if (gVsAI) {
@@ -146,7 +149,7 @@ function getDefensiveMovesAI() {
         optionalTiles = optionalTiles.concat(getNegCoords(currTile))
     }
     // Only get possible tiles
-    optionalTiles = optionalTiles.filter(t => t.i === getLowestRowAt(t.j, gBoard))
+    optionalTiles = optionalTiles.filter(t => t.i === getLowestRowAt(t.j, gBoard, EMPTY))
 
     optionalTiles = optionalTiles.filter(t => {
         var keep = false
@@ -161,22 +164,37 @@ function getDefensiveMovesAI() {
     return optionalTiles
 }
 
-function distance(coord1, coord2) {
-    return Math.abs(coord1.i - coord2.i) + Math.abs(coord1.j - coord2.j)
-}
-
 async function playAITurn() {
+    // Simulate AI thinking
     await sleep()
-    optionalTiles = getDefensiveMovesAI()
 
-    // Get random tile 
-    var tileIdx = getRandomInt(0, optionalTiles.length)
-    var col = optionalTiles[tileIdx].j
+    // Get all possible moves
+    var possibleMoves = getBotCoords(gBoard, EMPTY)
+
+    // Grade moves
+    possibleMoves = possibleMoves.map(gradeMove)
+
+    // Filter highest graded moves
+    var highestGrade = Math.max(...possibleMoves.map(m => m.grade))
+    var bestMoves = possibleMoves.filter(m => m.grade === highestGrade)
+
+    // Pick move from highest graded moves
+    var moveIdx = getRandomInt(0, bestMoves.length)
+    var col = bestMoves[moveIdx].j
+
+    // Play turn
     playTurn(col)
+
+    // Unblock player
+
 }
 
-async function sleep(ms = 1000) {
-    await new Promise(r => setTimeout(r, ms))
+function gradeMove(move) {
+    return { ...move, grade: 1 }
+}
+
+function bestMove(move) {
+
 }
 
 function isWin() {

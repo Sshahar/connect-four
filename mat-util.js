@@ -1,3 +1,5 @@
+'use strict'
+
 function createBoard(defaultCell = '') {
     if (!isMatInit()) return
     var mat = []
@@ -92,15 +94,6 @@ function getCoordsWith(value, board) {
     }
 
     return tiles
-}
-
-function getLowestRowAt(col, board) {
-    if (!isMatInit()) return
-    if (EMPTY === undefined) return
-    for (var row = ROWS - 1; row >= 0; row--) {
-        if (board[row][col] === EMPTY) return row
-    }
-    return -1
 }
 
 function countConsecutiveRight(coord, board) {
@@ -228,4 +221,22 @@ function getEmptyBotLeft(pieceCoord, maxMoves) {
         coords.push(coord)
     }
     return coords.slice(0, maxMoves)
+}
+
+
+function getLowestRowAt(col, board, empty) {
+    if (!isMatInit()) return
+    if (empty === undefined) return // undefined to exclude empty string as well
+    for (var row = ROWS - 1; row >= 0; row--) {
+        if (board[row][col] === empty) return row
+    }
+}
+
+function getBotCoords(board, empty) {
+    var lowestRow = []
+    for (var col = 0; col < COLS; col++) {
+        var row = getLowestRowAt(col, board, empty)
+        if (row) lowestRow.push({ i: row, j: col })
+    }
+    return lowestRow
 }

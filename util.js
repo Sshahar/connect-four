@@ -1,3 +1,5 @@
+'use strict'
+
 function getRandomInt(min, max) {
     return min + Math.floor(Math.random() * (max - min))
 }
@@ -18,4 +20,13 @@ function sum(arr) {
         arrSum += arr[i]
     }
     return arrSum
+}
+
+async function sleep(ms = 1000) {
+    await new Promise(r => setTimeout(r, ms))
+}
+
+function distance(coord1, coord2) {
+    // taxicab distance
+    return Math.abs(coord1.i - coord2.i) + Math.abs(coord1.j - coord2.j)
 }
