@@ -1,17 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connect four</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body onload="onInit()">
-    <table>
-        <tbody id="game-board"></tbody>
-    </table>
+    <div class="app-container">
+        <h1>Connect four</h1>
+        <div class="win-modal">
+            <div class="win-msg">You won!</div>
+            <button onclick="onInit()">Play again?</button>
+        </div>
+        <div class="game">
+            <table>
+                <tbody class="game-board"></tbody>
+            </table>
+        </div>
+    </div>
     <script src="mat-util.js"></script>
     <script src="util.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>

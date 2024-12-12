@@ -7,6 +7,10 @@
     --insert-y-5: -500px;
 }
 
+.app-container {
+    display: grid;
+}
+
 table {
     position: absolute;
     left: 50%;

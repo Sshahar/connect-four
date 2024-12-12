@@ -6,16 +6,17 @@ var COLS = 7
 
 // Tiles
 var EMPTY = 'V'
-var PLAYER1 = 'X'
-var PLAYER2 = 'O'
+var PLAYER1 = 'red'
+var PLAYER2 = 'yellow'
 var INSERT = 'B'
 var PLAYER1_HOVER = 'XX'
 var PLAYER2_HOVER = 'OO'
 
 // Game state  
-var gCurrPlayer = PLAYER1
-var gTurn = 1
-var gVsAI = true
+var gCurrPlayer
+var gTurn
+var gVsAI
+var gGameOver
 
 // String HTML
 var gStrHTML = {
@@ -39,7 +40,14 @@ var gStrHTML = {
         '</svg>',
 }
 
-function onInit() {
+function onInit() {  
+    gCurrPlayer = PLAYER1
+    gTurn = 1
+    gVsAI = true
+    gGameOver = false
+
+    document.querySelector('.win-modal').style.display = 'none'
+    document.querySelector('.game-board').style.display = 'block'
     gBoard = createBoard(EMPTY)
     setRow(0, INSERT, gBoard)
     renderBoard()
@@ -57,11 +65,12 @@ function renderBoard() {
         }
         strHTML += '</tr>\n'
     }
-    var boardEl = document.getElementById('game-board')
+    var boardEl = document.querySelector('.game-board')
     boardEl.innerHTML = strHTML
 }
 
 function onCellHover(col) {
+    if (gGameOver) return
     var playerEl = gStrHTML[gCurrPlayer == PLAYER1 ? PLAYER1_HOVER : PLAYER2_HOVER]
     renderCell({ i: 0, j: col }, playerEl)
 }
@@ -90,13 +99,13 @@ function playTurn(col) {
     var playerEl = gStrHTML[gCurrPlayer]
 
     if (!row) return // column full
-    debugger
     gBoard[row][col] = gCurrPlayer
     playerEl = addAttribute(playerEl, 'class', 'falling' + (row - 1))
     renderCell({ i: row, j: col }, playerEl)
 
     if (isWin()) {
-        setTimeout(() => alert('player won!'), 100)
+        onWin()
+        return
     }
     // Update current player
     if (!gVsAI) onCellLeave(col)
@@ -106,11 +115,20 @@ function playTurn(col) {
     if (gTurn == (ROWS - 1) * COLS) alert('board full')
 }
 
+function onWin() {
+    gGameOver = true
+    document.querySelector('.win-modal').style.display = 'block'
+
+    document.querySelector('.win-msg').innerHTML = `player ${gCurrPlayer} won!`
+
+    // document.querySelector('.game-board').style.display = 'none'    
+}
+
 function onCellClick(col) {
-    debugger
+    if (gGameOver) return
     playTurn(col)
 
-    if (gVsAI) {
+    if (gVsAI && !gGameOver) {
         playAITurn()
     }
 }
