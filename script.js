@@ -95,35 +95,23 @@ function addAttribute(elementTxt, htmlClass, value) {
     return elementTxt
 }
 
-function placeDisc(col, board) {
-
-}
-
-function playTurn(col, board) {
-    // one of three options:
-    // AI simulates game
-    // Player's turn
-    // AI's turn
+function makeMove(col, board, currPlayer) {
 
     var row = getLowestRowAt(col, board, EMPTY)
-    var playerEl = gStrHTML[gCurrPlayer]
+    if (!row) return
+    // move is valid:
 
-    if (!row) return // column full
-    board[row][col] = gCurrPlayer
-    playerEl = addAttribute(playerEl, 'class', 'falling' + (row - 1))
-    renderCell({ i: row, j: col }, playerEl)
+    // Update js model
+    board[row][col] = currPlayer
 
-    if (isWin(board)) {
-        onWin()
-        return
-    }
+    return { i: row, j: col }
+}
 
-    // Update current player
-    if (!gVsAI) onCellLeave(col)
-    gCurrPlayer = gCurrPlayer == PLAYER1 ? PLAYER2 : PLAYER1
-    if (!gVsAI) onCellHover(col)
-    gTurn++
-    if (gTurn == (ROWS - 1) * COLS) alert('board full')
+function renderDisc(coord) {
+    // Render disc to DOM
+    var elDisc = gStrHTML[gCurrPlayer]
+    elDisc = addAttribute(elDisc, 'class', 'falling' + (coord.i - 1))
+    renderCell(coord, elDisc)
 }
 
 function onWin() {
@@ -136,66 +124,50 @@ function onWin() {
 }
 
 function onCellClick(col) {
-    if (gGameOver) return
     if (gBlock) return
+    
+    play(col, gBoard, gCurrPlayer)
 
-    playTurn(col, gBoard)
-
-    if (gVsAI && !gGameOver) {
-        playAITurn()
-    }
+    // If vs AI, play his turn
+    if (gVsAI) playAITurn()
 }
 
-function getOffensiveMovesAI() {
-    // offensive AI
-    // first tile - random location
-    // next tiles - near a tile it already has
-    if (gTurn === 2) {
-        col = getRandomInt(0, COLS)
-        playTurn(col, gBoard)
+function play(col, board, player) {
+    if (gGameOver) return
+
+    // Make move (js side only)
+    var coord = makeMove(col, board, player)
+    if (!coord) return
+
+    // Render move
+    renderDisc(coord)
+
+    // Check win
+    if (isWin(board)) {
+        onWin()
         return
     }
 
-    var ourTiles = getCoordsWith(PLAYER2, gBoard)
-    var optionalTiles = []
+    // Toggle current player
+    gCurrPlayer = gCurrPlayer == PLAYER1 ? PLAYER2 : PLAYER1
 
-    for (var i = 0; i < ourTiles.length; i++) {
-        var currTile = ourTiles[i]
-        optionalTiles = optionalTiles.concat(getNegCoords(currTile))
+    // Is board full?
+    if (gTurn++ == (ROWS - 1) * COLS) {
+        tie()
+        return
     }
-
-    return optionalTiles
 }
 
-function getDefensiveMovesAI() {
-    // Defensive AI
-    // find enemy tiles
-    // place next to those tiles
+function toggleHover(col) {
 
-    var enemyTiles = getCoordsWith(PLAYER1, gBoard)
-    var optionalTiles = []
+}
 
-    for (var i = 0; i < enemyTiles.length; i++) {
-        var currTile = enemyTiles[i]
-        optionalTiles = optionalTiles.concat(getNegCoords(currTile))
-    }
-    // Only get possible tiles
-    optionalTiles = optionalTiles.filter(t => t.i === getLowestRowAt(t.j, gBoard, EMPTY))
-
-    optionalTiles = optionalTiles.filter(t => {
-        var keep = false
-
-        // keep tiles near enemy
-        enemyTiles.forEach(et => {
-            if (distance(t, et) === 1) keep = true
-        })
-        return keep
-    })
-
-    return optionalTiles
+function tie() {
+    alert('board full - there\'s no winner!')
 }
 
 async function playAITurn() {
+    if (gGameOver) return
     // Block player from playing
     gBlock = true
 
@@ -217,7 +189,7 @@ async function playAITurn() {
     var col = bestMoves[moveIdx].j
 
     // Play turn
-    playTurn(col, gBoard)
+    play(col, gBoard, gCurrPlayer)
 
     // Unblock player
     gBlock = false
