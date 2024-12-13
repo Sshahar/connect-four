@@ -1,18 +1,18 @@
 'use strict'
 // Board parameters
-var gBoard = []
 var ROWS = 7
 var COLS = 7
 
 // Tiles
 var EMPTY = 'V'
-var PLAYER1 = 'red'
-var PLAYER2 = 'yellow'
+var PLAYER1 = 'Red'
+var PLAYER2 = 'Yellow'
 var INSERT = 'B'
 var PLAYER1_HOVER = 'XX'
 var PLAYER2_HOVER = 'OO'
 
 // Game state  
+var gBoard = []
 var gCurrPlayer
 var gTurn
 var gVsAI
@@ -46,6 +46,7 @@ function onInit() {
     gTurn = 1
     gVsAI = true
     gGameOver = false
+    gBlock = false
     gBoard = createBoard(EMPTY)
     setRow(0, INSERT, gBoard)
 
@@ -120,7 +121,7 @@ function onWin() {
     gGameOver = true
     document.querySelector('.win-modal').style.display = 'block'
 
-    document.querySelector('.win-msg').innerHTML = `player ${gCurrPlayer} won!`
+    document.querySelector('.win-msg-span').innerHTML = gCurrPlayer
 
     // document.querySelector('.game-board').style.display = 'none'    
 }
@@ -160,12 +161,10 @@ function play(col, board, player) {
     }
 }
 
-function toggleHover(col) {
-
-}
-
 function tie() {
-    alert('board full - there\'s no winner!')
+    document.querySelector('.win-modal').style.display = 'block'
+    document.querySelector('.win-msg-span').innerHTML = 'Nobody'
+
 }
 
 async function playAITurn() {
