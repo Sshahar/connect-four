@@ -128,6 +128,7 @@ function onWin() {
 function onCellClick(col) {
     if (gBlock) return
     
+    renderRow(0, gStrHTML[INSERT])
     play(col, gBoard, gCurrPlayer)
 
     // If vs AI, play his turn
