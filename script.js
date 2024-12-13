@@ -5,8 +5,8 @@ var COLS = 7
 
 // Tiles
 var EMPTY = 'V'
-var PLAYER1 = 'Red'
-var PLAYER2 = 'Yellow'
+var PLAYER1 = '🔴'
+var PLAYER2 = '🟡'
 var INSERT = 'B'
 var PLAYER1_HOVER = 'XX'
 var PLAYER2_HOVER = 'OO'
@@ -160,6 +160,9 @@ function play(col, board, player) {
 
     // Toggle current player
     gCurrPlayer = gCurrPlayer == PLAYER1 ? PLAYER2 : PLAYER1
+
+    // Render current player
+    document.querySelector('span.player-disc').innerHTML = gCurrPlayer
 
     // Is board full?
     if (gTurn++ == (ROWS - 1) * COLS) {
