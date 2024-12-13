@@ -19,26 +19,25 @@ var gVsAI
 var gGameOver
 var gBlock
 
-// String HTML
 var gStrHTML = {
-    [EMPTY]: '<svg height="80" width="80">\n' +
-        '   <circle r="30" cx="40" cy="40" fill="#bebcbf"/>\n' +
-        '</svg>',
-    [PLAYER1]: '<svg height="80" width="80">\n' +
-        '   <circle r="30" cx="40" cy="40" fill="red"/>\n' +
-        '</svg>',
-    [PLAYER2]: '<svg height="80" width="80">\n' +
-        '   <circle r="30" cx="40" cy="40" fill="yellow"/>\n' +
-        '</svg>',
-    [INSERT]: '<svg height="80" width="80">\n' +
-        '   <rect height="100" width="100" cx="40" cy="40" fill="#bebcbf"/>\n' +
-        '</svg>',
-    [PLAYER1_HOVER]: '<svg height="80" width="80" style="background-color: #bebcbf">\n' +
-        '   <circle r="30" cx="40" cy="20" fill="red"/>\n' +
-        '</svg>',
-    [PLAYER2_HOVER]: '<svg height="80" width="80" style="background-color: #bebcbf">\n' +
-        '   <circle r="30" cx="40" cy="20" fill="yellow"/>\n' +
-        '</svg>',
+    [EMPTY]: `<svg height="80" width="80">\n` +
+        `   <circle r="30" cx="40" cy="40" fill="${grey}"/>\n` +
+        `</svg>`,
+    [PLAYER1]: `<svg height="80" width="80">\n` +
+        `   <circle r="30" cx="40" cy="40" fill="red"/>\n` +
+        `</svg>`,
+    [PLAYER2]: `<svg height="80" width="80">\n` +
+        `   <circle r="30" cx="40" cy="40" fill="yellow"/>\n` +
+        `</svg>`,
+    [INSERT]: `<svg height="80" width="80">\n` +
+        `   <rect height="100" width="100" cx="40" cy="40" fill="${grey}"/>\n` +
+        `</svg>`,
+    [PLAYER1_HOVER]: `<svg height="80" width="80" style="background-color: ${grey}">\n` +
+        `   <circle r="30" cx="40" cy="20" fill="red"/>\n` +
+        `</svg>`,
+    [PLAYER2_HOVER]: `<svg height="80" width="80" style="background-color: ${grey}">\n` +
+        `   <circle r="30" cx="40" cy="20" fill="yellow"/>\n` +
+        `</svg>`,
 }
 
 function onInit() {
