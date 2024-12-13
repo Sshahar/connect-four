@@ -19,24 +19,30 @@ var gVsAI
 var gGameOver
 var gBlock
 
+//  sizes
+var discSize = 80 * scale
+var discRadius = 30 * scale
+var discCenter = 40 * scale
+var hoverCenter = 20 * scale
+
 var gStrHTML = {
-    [EMPTY]: `<svg height="80" width="80">\n` +
-        `   <circle r="30" cx="40" cy="40" fill="${grey}"/>\n` +
+    [EMPTY]: `<svg height="${discSize}" width="${discSize}">\n` +
+        `   <circle r="${discRadius}" cx="${discCenter}" cy="${discCenter}" fill="${grey}"/>\n` +
         `</svg>`,
-    [PLAYER1]: `<svg height="80" width="80">\n` +
-        `   <circle r="30" cx="40" cy="40" fill="red"/>\n` +
+    [PLAYER1]: `<svg height="${discSize}" width="${discSize}">\n` +
+        `   <circle r="${discRadius}" cx="${discCenter}" cy="${discCenter}" fill="red"/>\n` +
         `</svg>`,
-    [PLAYER2]: `<svg height="80" width="80">\n` +
-        `   <circle r="30" cx="40" cy="40" fill="yellow"/>\n` +
+    [PLAYER2]: `<svg height="${discSize}" width="${discSize}">\n` +
+        `   <circle r="${discRadius}" cx="${discCenter}" cy="${discCenter}" fill="yellow"/>\n` +
         `</svg>`,
-    [INSERT]: `<svg height="80" width="80">\n` +
-        `   <rect height="100" width="100" cx="40" cy="40" fill="${grey}"/>\n` +
+    [INSERT]: `<svg height="${discSize}" width="${discSize}">\n` +
+        `   <rect height="100" width="100" cx="${discCenter}" cy="${discCenter}" fill="${grey}"/>\n` +
         `</svg>`,
-    [PLAYER1_HOVER]: `<svg height="80" width="80" style="background-color: ${grey}">\n` +
-        `   <circle r="30" cx="40" cy="20" fill="red"/>\n` +
+    [PLAYER1_HOVER]: `<svg height="${discSize}" width="${discSize}" style="background-color: ${grey}">\n` +
+        `   <circle r="${discRadius}" cx="${discCenter}" cy="${hoverCenter}" fill="red"/>\n` +
         `</svg>`,
-    [PLAYER2_HOVER]: `<svg height="80" width="80" style="background-color: ${grey}">\n` +
-        `   <circle r="30" cx="40" cy="20" fill="yellow"/>\n` +
+    [PLAYER2_HOVER]: `<svg height="${discSize}" width="${discSize}" style="background-color: ${grey}">\n` +
+        `   <circle r="${discRadius}" cx="${discCenter}" cy="${hoverCenter}" fill="yellow"/>\n` +
         `</svg>`,
 }
 
