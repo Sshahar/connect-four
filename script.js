@@ -59,8 +59,7 @@ function renderBoard() {
     for (var i = 0; i < ROWS; i++) {
         strHTML += '<tr>\n'
         for (var j = 0; j < COLS; j++) {
-            strHTML += `\t<td onmouseenter="onCellHover(${j})"
-             onmouseleave="onCellLeave(${j})"
+            strHTML += `\t<td onmousemove="onMove(${j})"
               onclick="onCellClick(${j})"
                data-i=${i} data-j=${j}>${gStrHTML[gBoard[i][j]]}</td>\n`
         }
@@ -70,16 +69,19 @@ function renderBoard() {
     boardEl.innerHTML = strHTML
 }
 
-function onCellHover(col) {
+function onMove(col) {
+    renderRow(0, gStrHTML[INSERT])
     if (gGameOver) return
+    if (gBlock) return
     var playerEl = gStrHTML[gCurrPlayer == PLAYER1 ? PLAYER1_HOVER : PLAYER2_HOVER]
     renderCell({ i: 0, j: col }, playerEl)
 }
 
-function onCellLeave(col) {
-    renderCell({ i: 0, j: col }, gStrHTML[INSERT])
+function renderRow(row, value) {
+    for (var j=0; j<gBoard[row].length; j++) {
+        renderCell({i: row, j}, value)
+    }
 }
-
 function renderCell(coord, value) {
     const cellSelector = `td[data-i="${coord.i}"][data-j="${coord.j}"]`
     const elCell = document.querySelector(cellSelector)

@@ -8,14 +8,24 @@
 }
 
 .app-container {
-    display: grid;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+h1.index-page {
+    text-align: center;
+}
+
+.win-modal {
+    text-align: center;
+    border-radius: 5%;
+    background-color: #96a0ff;
 }
 
 table {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    /* position: absolute; */
     background-color: blue;
 }
 
