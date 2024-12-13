@@ -1,1 +1,0 @@
-var scale = 0.5

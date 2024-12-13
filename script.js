@@ -20,6 +20,7 @@ var gGameOver
 var gBlock
 
 //  sizes
+var scale = window.screen.width > 680 && window.screen.height > 800 ? 1 : 0.5
 var discSize = 80 * scale
 var discRadius = 30 * scale
 var discCenter = 40 * scale
