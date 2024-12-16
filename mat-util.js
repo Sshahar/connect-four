@@ -60,14 +60,14 @@ function getSecDiag(mat) {
     return coords
 }
 
-function getNegCoords(coord) {
+function getNegs(coord) {
     if (!isMatInit()) return
     var tiles = []
 
     for (var i = coord.i - 1; i < ROWS && i <= coord.i + 1; i++) {
         for (var j = coord.j - 1; j < COLS && j <= coord.j + 1; j++) {
             if (i < 0 || j < 0) continue
-            if (i == coord.i && j == coord.j) continue
+            if (i === coord.i && j === coord.j) continue
             tiles.push({ i, j })
         }
     }
@@ -83,146 +83,95 @@ function isMatInit() {
     return true
 }
 
-function getCoordsWith(value, board) {
+function getCellsWith(values, board) {
     if (!isMatInit()) return
     var tiles = []
 
     for (var i = 0; i < ROWS; i++) {
         for (var j = 0; j < COLS; j++) {
-            if (board[i][j] == value) tiles.push({ i, j })
+            values.forEach(v => {
+                if (board[i][j] === v) tiles.push({ i, j })
+            })
         }
     }
 
     return tiles
 }
 
-function countConsecutiveRight(coord, board) {
-    if (!isMatInit()) return
-    var count = 0
-
-    var i = coord.i
-    for (var j = coord.j; j < COLS; j++) {
-        if (board[i][j] == board[coord.i][coord.j]) count++
-        else break
-    }
-
-    return count
-}
-
-function countConsecutiveDown(coord, board) {
-    if (!isMatInit()) return
-    var count = 0
-
-    for (var i = coord.i, j = coord.j; i < ROWS; i++) {
-        if (board[i][j] == board[coord.i][coord.j]) count++
-        else break
-    }
-
-    return count
-}
-
-function countConsecutiveRightDown(coord, board) {
-    if (!isMatInit()) return
-    var count = 0
-
-    for (var i = coord.i, j = coord.j; i < ROWS && j < COLS; i++, j++) {
-        if (board[i][j] == board[coord.i][coord.j]) count++
-        else break
-    }
-
-    return count
-}
-
-function countConsecutiveLeftUp(coord, board) {
-    if (!isMatInit()) return
-    var count = 0
-
-    for (var i = coord.i, j = coord.j; i >= 0 && j < COLS; i--, j++) {
-        if (board[i][j] == board[coord.i][coord.j]) count++
-        else break
-    }
-
-    return count
-}
-
-function getConsAbove(coord, maxMoves, board, val = '') {
-    var res = []
+function getConsN(coord, maxMoves, board, vals) {
+    var coords = []
     for (var i = coord.i - 1, j = coord.j; i >= 0; i--) {
-        if (board[i][j] === val) res.push({ i, j })
+        if (vals.includes(board[i][j])) coords.push({ i, j })
         else break
     }
-    return res.slice(0, maxMoves)
+    return coords.slice(0, maxMoves)
 }
 
-function getConsBelow(coord, maxMoves, board, val = '') {
-    var res = []
+function getConsS(coord, maxMoves, board, vals) {
+    var coords = []
     for (var i = coord.i + 1, j = coord.j; i < ROWS; i++) {
-        if (board[i][j] === val) res.push({ i, j })
+        if (vals.includes(board[i][j])) coords.push({ i, j })
         else break
     }
-    return res.slice(0, maxMoves)
+    return coords.slice(0, maxMoves)
 }
 
-function getConsLeft(coord, maxMoves, board, val = '') {
-    var res = []
+function getConsW(coord, maxMoves, board, vals) {
+    var coords = []
 
     for (var i = coord.i, j = coord.j - 1; j >= 0; j--) {
-        if (board[i][j] === val) res.push({ i, j })
+        if (vals.includes(board[i][j])) coords.push({ i, j })
         else break
     }
-    return res.slice(0, maxMoves)
+    return coords.slice(0, maxMoves)
 }
 
-function getConsRight(coord, maxMoves, board, val = '') {
-    var res = []
+function getConsE(coord, maxMoves, board, vals) {
+    var coords = []
 
     for (var i = coord.i, j = coord.j + 1; j < COLS; j++) {
-        if (board[i][j] === val) res.push({ i, j })
+        if (vals.includes(board[i][j])) coords.push({ i, j })
         else break
     }
-    return res.slice(0, maxMoves)
+    return coords.slice(0, maxMoves)
 }
 
-function getEmptyUpRight(pieceCoord, maxMoves) {
+function getConsNE(coord, maxMoves, board, vals) {
     var coords = []
-    for (var i = pieceCoord.i - 1, j = pieceCoord.j + 1; i >= 0 && j < COLS; i--, j++) {
-        var coord = { i, j }
-        if (!isEmptyCell(coord)) break
-        coords.push(coord)
+
+    for (var i = coord.i - 1, j = coord.j + 1; i >= 0 && j < COLS; i--, j++) {
+        if (vals.includes(board[i][j])) coords.push({ i, j })
+        else break
     }
     return coords.slice(0, maxMoves)
 }
 
-function getEmptyUpLeft(pieceCoord, maxMoves) {
+function getConsNW(coord, maxMoves, board, vals) {
     var coords = []
-    for (var i = pieceCoord.i - 1, j = pieceCoord.j - 1; i >= 0 && j >= 0; i--, j--) {
-        var coord = { i, j }
-        if (!isEmptyCell(coord)) break
-        coords.push(coord)
+    for (var i = coord.i - 1, j = coord.j - 1; i >= 0 && j >= 0; i--, j--) {
+        if (vals.includes(board[i][j])) coords.push({ i, j })
+        else break
     }
     return coords.slice(0, maxMoves)
 }
 
-function getEmptyBotRight(pieceCoord, maxMoves) {
+function getConsSE(coord, maxMoves, board, vals) {
     var coords = []
-    for (var i = pieceCoord.i + 1, j = pieceCoord.j + 1; i < ROWS && j < COLS; i++, j++) {
-        var coord = { i, j }
-        if (!isEmptyCell(coord)) break
-        coords.push(coord)
+    for (var i = coord.i + 1, j = coord.j + 1; i < ROWS && j < COLS; i++, j++) {
+        if (vals.includes(board[i][j])) coords.push({ i, j })
+        else break
     }
     return coords.slice(0, maxMoves)
 }
 
-function getEmptyBotLeft(pieceCoord, maxMoves) {
+function getConsSW(coord, maxMoves, board, vals) {
     var coords = []
-    for (var i = pieceCoord.i + 1, j = pieceCoord.j - 1; i < ROWS && j >= 0; i++, j--) {
-        var coord = { i, j }
-        if (!isEmptyCell(coord)) break
-        coords.push(coord)
+    for (var i = coord.i + 1, j = coord.j - 1; i < ROWS && j >= 0; i++, j--) {
+        if (vals.includes(board[i][j])) coords.push({ i, j })
+        else break
     }
     return coords.slice(0, maxMoves)
 }
-
 
 function getLowestRowAt(col, board, empty) {
     if (!isMatInit()) return

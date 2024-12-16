@@ -85,8 +85,8 @@ function onMove(col) {
 }
 
 function renderRow(row, value) {
-    for (var j=0; j<gBoard[row].length; j++) {
-        renderCell({i: row, j}, value)
+    for (var j = 0; j < gBoard[row].length; j++) {
+        renderCell({ i: row, j }, value)
     }
 }
 function renderCell(coord, value) {
@@ -134,7 +134,7 @@ function onWin() {
 
 function onCellClick(col) {
     if (gBlock) return
-    
+
     renderRow(0, gStrHTML[INSERT])
     play(col, gBoard, gCurrPlayer)
 
@@ -191,13 +191,8 @@ async function playAITurn() {
     // Grade moves
     possibleMoves = possibleMoves.map(gradeMove)
 
-    // Filter highest graded moves
-    var highestGrade = Math.max(...possibleMoves.map(m => m.grade))
-    var bestMoves = possibleMoves.filter(m => m.grade === highestGrade)
-
-    // Pick move from highest graded moves
-    var moveIdx = getRandomInt(0, bestMoves.length)
-    var col = bestMoves[moveIdx].j
+    // Filter highest graded moves and pick one
+    var col = getBestMove(possibleMoves)
 
     // Play turn
     play(col, gBoard, gCurrPlayer)
@@ -206,30 +201,58 @@ async function playAITurn() {
     gBlock = false
 }
 
+// TODO: teach block from 2 directions
+function getBoardScore(board) {
+    var score = 0
+    var occupiedCells = getCellsWith([PLAYER1, PLAYER2], board)
+    var consFuncs = [
+        getConsN, getConsS,
+        getConsE, getConsW,
+        getConsNE, getConsSW,
+        getConsNW, getConsSE,
+    ]
+    for (var ocIdx = 0; ocIdx < occupiedCells.length; ocIdx++) {
+        var currCoord = occupiedCells[ocIdx]
+        var currCell = board[currCoord.i][currCoord.j]
+        var sign = currCell === PLAYER1 ? -1 : 1
 
-function gradeMove(move) {
-    // var tempBoard = _.cloneDeep(gBoard)
-    // if (isWin(boardAfterMove)) return { ...move, grade: Infinity }
-    // var boardAfterMove = playTurn(move.j, tempBoard)
-
-    return { ...move, grade: 1 }
+        for (var fIdx = 0; fIdx < consFuncs.length - 1; fIdx += 2) {
+            var consCount = 1 + consFuncs[fIdx](currCoord, 3, board, [currCell]).length +
+                consFuncs[fIdx + 1](currCoord, 3, board, [currCell]).length
+            var canConsWin = (1 + consFuncs[fIdx](currCoord, 3, board, [currCell, EMPTY]).length +
+                consFuncs[fIdx + 1](currCoord, 3, board, [currCell, EMPTY]).length) >= 4
+            if (canConsWin) score += sign * Math.pow(10, consCount - 1)
+            if (consCount >= 4) return sign * Infinity
+        }
+    }
+    console.log('score:', score)
+    return score
 }
 
-function bestMove(move) {
+function gradeMove(move) {
+    // Create a copy of board
+    var simBoard = _.cloneDeep(gBoard)
 
+    // Make move
+    makeMove(move.j, simBoard, gCurrPlayer)
+    move.grade = getBoardScore(simBoard)
+
+    // Check board state - this is grade
+    return move
+}
+
+function getBestMove(possibleMoves) {
+    var highestGrade = Math.max(...possibleMoves.map(m => m.grade))
+    var bestMoves = possibleMoves.filter(m => m.grade === highestGrade)
+
+    // Pick move from highest graded moves
+    var moveIdx = getRandomInt(0, bestMoves.length)
+    var col = bestMoves[moveIdx].j
+
+    return col
 }
 
 function isWin(board) {
-    for (var i = 0; i < ROWS; i++) {
-        for (var j = 0; j < COLS; j++) {
-            var currVal = board[i][j]
-            if (currVal === EMPTY || currVal === INSERT) continue
-            var coord = { i, j }
-            if (1 + getConsRight(coord, COLS, board, currVal).length >= 4) return true
-            if (1 + getConsBelow(coord, ROWS, board, currVal).length >= 4) return true
-            if (countConsecutiveRightDown(coord, board) >= 4) return true
-            if (countConsecutiveLeftUp(coord, board) >= 4) return true
-        }
-    }
-    return false
+    var score = getBoardScore(board)
+    return score === Infinity || score === -Infinity
 }

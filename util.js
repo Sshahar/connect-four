@@ -30,3 +30,7 @@ function distance(coord1, coord2) {
     // taxicab distance
     return Math.abs(coord1.i - coord2.i) + Math.abs(coord1.j - coord2.j)
 }
+
+function inRange(num, low, high) {
+    return num >= low && num < high
+}
