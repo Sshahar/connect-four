@@ -104,9 +104,9 @@ function addAttribute(elementTxt, htmlClass, value) {
     return elementTxt
 }
 
-function makeMove(col, board, currPlayer) {
+function makeMove(col, currPlayer, board) {
 
-    var row = getLowestRowAt(col, board, EMPTY)
+    var row = getLowestRowAt(col, EMPTY, board)
     if (!row) return
     // move is valid:
 
@@ -146,7 +146,7 @@ function play(col, board, player) {
     if (gGameOver) return
 
     // Make move (js side only)
-    var coord = makeMove(col, board, player)
+    var coord = makeMove(col, player, board)
     if (!coord) return
 
     // Render move
@@ -178,27 +178,27 @@ function tie() {
 }
 
 async function playAITurn() {
-    if (gGameOver) return
-    // Block player from playing
-    gBlock = true
+  if (gGameOver) return
+  // Block player from playing
+  gBlock = true
 
-    // Simulate AI thinking
-    await sleep()
+  // Simulate AI thinking
+  await sleep()
 
-    // Get all possible moves
-    var possibleMoves = getBotCoords(gBoard, EMPTY)
+  // Get all possible moves
+  var possibleMoves = getBotCoords(gBoard, EMPTY)
 
-    // Grade moves
-    possibleMoves = possibleMoves.map(gradeMove)
+  // Grade moves
+  possibleMoves = possibleMoves.map(gradeMove)
 
-    // Filter highest graded moves and pick one
-    var col = getBestMove(possibleMoves)
+  // Filter highest graded moves and pick one
+  var col = getBestMove(possibleMoves)
 
-    // Play turn
-    play(col, gBoard, gCurrPlayer)
+  // Play turn
+  play(col, gBoard, gCurrPlayer)
 
-    // Unblock player
-    gBlock = false
+  // Unblock player
+  gBlock = false
 }
 
 // TODO: teach block from 2 directions
@@ -229,13 +229,14 @@ function getBoardScore(board) {
     return score
 }
 
-function gradeMove(move) {
+function gradeMove(move, currPlayer, board) {
     // Create a copy of board
-    var simBoard = _.cloneDeep(gBoard)
+    var simBoard = _.cloneDeep(board)
 
     // Make move
-    makeMove(move.j, simBoard, gCurrPlayer)
+    makeMove(move.j, currPlayer, simBoard)
     move.grade = getBoardScore(simBoard)
+    move.boardAfterMove = simBoard
 
     // Check board state - this is grade
     return move

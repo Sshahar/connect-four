@@ -173,7 +173,7 @@ function getConsSW(coord, maxMoves, board, vals) {
     return coords.slice(0, maxMoves)
 }
 
-function getLowestRowAt(col, board, empty) {
+function getLowestRowAt(col, empty, board) {
     if (!isMatInit()) return
     if (empty === undefined) return // undefined to exclude empty string as well
     for (var row = ROWS - 1; row >= 0; row--) {
@@ -184,7 +184,7 @@ function getLowestRowAt(col, board, empty) {
 function getBotCoords(board, empty) {
     var lowestRow = []
     for (var col = 0; col < COLS; col++) {
-        var row = getLowestRowAt(col, board, empty)
+        var row = getLowestRowAt(col, empty, board)
         if (row) lowestRow.push({ i: row, j: col })
     }
     return lowestRow
